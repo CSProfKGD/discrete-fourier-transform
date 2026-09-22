@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { WIDTH as W, HEIGHT as H, BRUSH_DIAMETER, conjugateIndex, signedBin } from './fourier';
 import type { Point, Preset } from './fourier';
 import type { Command, WorkerInput, WorkerOutput } from './protocol';
+import { renderPreview } from './preview';
 import './styles.css';
 
 type Selection = { x: number; y: number; clientX: number; clientY: number; index: number };
@@ -43,9 +44,10 @@ function App() {
     const send = (message: WorkerInput, transfer: Transferable[] = []) => worker.postMessage(message, transfer);
     const spatialContext = spatialRef.current!.getContext('2d')!;
     const spectrumContext = spectrumRef.current!.getContext('2d')!;
-    const previewContext = tileCanvasRef.current!.getContext('2d')!;
-    const previewData = previewContext.createImageData(W, H);
-    const cosX = new Float64Array(W), sinX = new Float64Array(W);
+    const previewCanvas = tileCanvasRef.current!;
+    const previewContext = previewCanvas.getContext('2d')!;
+    let previewData = previewContext.createImageData(W, H);
+    let cosX = new Float64Array(W), sinX = new Float64Array(W);
     let animationFrame = 0;
     let initializedImage = false;
     let active = true;
@@ -160,22 +162,23 @@ function App() {
       const gain = state.hoverIndex === selection.index ? state.hoverGain : 1;
       const amplitude = Math.hypot(real, imag);
       const zero = amplitude * gain < 1e-12;
+      // Match the actual display grid, keeping an exact 4:3 intrinsic ratio.
+      // Rounding down avoids a second downsampling step in the compositor.
+      const previewWidth = Math.max(4, 4 * Math.floor(previewCanvas.getBoundingClientRect().width * window.devicePixelRatio / 4));
+      const previewHeight = previewWidth * 3 / 4;
+      if (previewCanvas.width !== previewWidth || previewCanvas.height !== previewHeight) {
+        previewCanvas.width = previewWidth; previewCanvas.height = previewHeight;
+        previewData = previewContext.createImageData(previewWidth, previewHeight);
+        cosX = new Float64Array(previewWidth); sinX = new Float64Array(previewWidth);
+        state.previewIndex = null;
+      }
       if (state.previewIndex === selection.index && state.previewZero === zero) return;
       state.previewIndex = selection.index; state.previewZero = zero;
       const u = signedBin(selection.index % W, W), v = signedBin(Math.floor(selection.index / W), H);
       // The contrast-normalized pair is Re(F exp(iθ))/|F|. The self-pair's
       // non-doubled amplitude cancels under this same normalization.
       const phase = Math.atan2(imag, real);
-      for (let x = 0; x < W; x++) { const a = 2 * Math.PI * u * x / W + phase; cosX[x] = Math.cos(a); sinX[x] = Math.sin(a); }
-      for (let y = 0; y < H; y++) {
-        const a = 2 * Math.PI * v * y / H, c = Math.cos(a), s = Math.sin(a);
-        for (let x = 0; x < W; x++) {
-          const value = zero ? 128 : Math.round(127.5 + 119 * (cosX[x] * c - sinX[x] * s));
-          const i = (y * W + x) * 4;
-          previewData.data[i] = previewData.data[i + 1] = previewData.data[i + 2] = value;
-          previewData.data[i + 3] = 255;
-        }
-      }
+      renderPreview(previewData.data, previewWidth, previewHeight, u, v, phase, zero, cosX, sinX);
       previewContext.putImageData(previewData, 0, 0);
     }
 
@@ -337,7 +340,7 @@ function App() {
           <output htmlFor="brush-diameter"><span>{diameter}</span><span className="unit">px</span></output>
         </div>
         {!ready && <div className="status" role="status">{error ? 'Image unavailable. Reload to retry.' : 'Preparing image…'}</div>}
-        <span id="spectrum-help" className="sr-only">Hover to preview a conjugate sinusoid pair. Drag to soften frequencies. Use arrow keys to select a frequency and hold Space to apply the brush. The preview has normalized contrast. Undo reverses one action.</span>
+        <span id="spectrum-help" className="sr-only">Hover to preview a conjugate sinusoid pair. Drag to soften frequencies. Use arrow keys to select a frequency and hold Space to apply the brush. The preview shows a fixed magnified 64 by 48 pixel spatial patch with normalized contrast. Undo reverses one action.</span>
       </section>
       <div className="sinusoid-tile" ref={tileRef} aria-hidden="true"><canvas ref={tileCanvasRef} width={W} height={H} /></div>
     </main>

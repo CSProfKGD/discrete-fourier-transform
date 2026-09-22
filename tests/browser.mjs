@@ -80,7 +80,8 @@ try {
     const canvas = document.querySelector('.sinusoid-tile canvas');
     const rgba = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
     const halo = document.querySelector('.halos circle');
-    return { shiftedX: Number(halo.getAttribute('cx')) + 512 - .5,
+    return { width: canvas.width, height: canvas.height,
+      shiftedX: Number(halo.getAttribute('cx')) + 512 - .5,
       shiftedY: Number(halo.getAttribute('cy')) + 384 - .5,
       pixels: Array.from({ length: canvas.width * canvas.height }, (_, i) => rgba[i * 4]) };
   });
@@ -205,6 +206,37 @@ try {
   const released = await snapshot(); await page.waitForTimeout(250); assert.equal(await snapshot(), released);
   assert.equal(await page.locator('.sinusoid-tile').evaluate(el => getComputedStyle(el).opacity), '0');
   await reset();
+  // The fixed magnified patch resolves even the finest DFT modes at both
+  // standard and Retina density, and keeps equal padding around the tile.
+  report.previewSampling = [];
+  for (const dpr of [1, 2]) {
+    const previewPage = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: dpr });
+    await previewPage.goto(process.env.PREVIEW_URL || 'http://127.0.0.1:5174/');
+    await previewPage.waitForSelector('.site-shell.is-ready');
+    for (const viewportWidth of [1440, 390]) {
+      await previewPage.setViewportSize({ width: viewportWidth, height: 1000 });
+      await previewPage.locator('.spectrum > canvas').scrollIntoViewIfNeeded();
+      for (const [u, v] of [[12, -7], [250, 0], [0, 185], [240, 180]]) {
+        const rect = await previewPage.locator('.spectrum > canvas').boundingBox();
+        await previewPage.mouse.move(rect.x + (256 + u + .5) / 512 * rect.width, rect.y + (192 + v + .5) / 384 * rect.height);
+        await previewPage.waitForTimeout(400);
+        const result = await previewPage.locator('.sinusoid-tile canvas').evaluate(canvas => {
+          const bounds = canvas.getBoundingClientRect(), frame = canvas.parentElement.getBoundingClientRect();
+          const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+          let min = 255, max = 0;
+          for (let i = 0; i < pixels.length; i += 4) { min = Math.min(min, pixels[i]); max = Math.max(max, pixels[i]); }
+          return { width: canvas.width, height: canvas.height, displayWidth: bounds.width * devicePixelRatio, min, max,
+            gaps: [bounds.left - frame.left, bounds.top - frame.top, frame.right - bounds.right, frame.bottom - bounds.bottom] };
+        });
+        assert.equal(result.width / result.height, 4 / 3);
+        assert.ok(result.width <= result.displayWidth && result.displayWidth - result.width < 4);
+        for (const gap of result.gaps) assert.ok(Math.abs(gap - 6) < .1);
+        assert.ok(result.max - result.min > 230);
+        report.previewSampling.push({ dpr, viewportWidth, u, v, ...result });
+      }
+    }
+    await previewPage.close();
+  }
   report.consoleErrors = errors;
   assert.deepEqual(errors, []);
   await writeFile('.qa/browser-report.json', JSON.stringify(report, null, 2));

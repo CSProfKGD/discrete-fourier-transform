@@ -56,10 +56,14 @@ for name, mask in masks.items():
 preview = cases['preview']
 ku = int(preview['shiftedX'] + w//2) % w
 kv = int(preview['shiftedY'] + h//2) % h
-xx, yy = np.meshgrid(np.arange(w), np.arange(h))
-angle = 2*np.pi*(np.fft.fftfreq(w)[ku]*xx + np.fft.fftfreq(h)[kv]*yy) + np.angle(coefficients[kv, ku])
-expected_preview = np.floor(127.5 + 119*np.cos(angle) + .5)
-preview_error = np.abs(expected_preview - np.array(preview['pixels']).reshape(h, w)).max()
+pw, ph = preview['width'], preview['height']
+xx, yy = np.meshgrid(np.arange(pw), np.arange(ph))
+u, v = np.fft.fftfreq(w)[ku]*w, np.fft.fftfreq(h)[kv]*h
+angle = 2*np.pi*(u/w*64*xx/pw + v/h*48*yy/ph) + np.angle(coefficients[kv, ku])
+t = np.clip((max(2*abs(u)/w*64/pw, 2*abs(v)/h*48/ph)-.6)/.3, 0, 1)
+contrast = .5+.5*np.cos(np.pi*t)
+expected_preview = np.floor(127.5 + 119*contrast*np.cos(angle) + .5)
+preview_error = np.abs(expected_preview - np.array(preview['pixels']).reshape(ph, pw)).max()
 assert preview_error <= 1, ('phase-aware preview mismatch', preview_error)
 report['phase_aware_preview'] = {'max_pixel_error': int(preview_error), 'coefficient': [ku, kv]}
 
