@@ -40,10 +40,10 @@ button:active:not(:disabled) { background: #2a2a2f; }
 button:focus-visible { outline: 2px solid var(--aqua); outline-offset: 4px; }
 button:disabled { opacity: .3; cursor: default; }
 .brush-control { display: grid; grid-template-columns: auto minmax(80px, 1fr) 3.5rem; align-items: center; gap: .75rem; width: min(28rem, 100%); margin: 1.4rem auto 0; }
-.brush-control label { color: #a4a4ad; font-size: .9375rem; font-weight: 500; letter-spacing: -.012em; }
-.brush-control output { display: flex; justify-content: flex-start; align-items: baseline; gap: .4rem; color: #a4a4ad; font-size: 1rem; font-weight: 500; font-variant-numeric: tabular-nums; transform: translateX(-8px); }
+.brush-control label { color: #a4a4ad; font-size: .9375rem; line-height: 1.4; font-weight: 500; letter-spacing: -.012em; }
+.brush-control output { display: flex; justify-content: flex-start; align-items: baseline; gap: .4rem; color: #a4a4ad; font-size: .9375rem; line-height: 1.4; font-weight: 500; font-variant-numeric: tabular-nums; transform: translateX(-8px); }
 .brush-control .unit { color: #8d8d93; font-size: .875rem; font-weight: 400; }
-.brush-control input { appearance: none; width: 100%; height: 32px; margin: 0; background: transparent; cursor: pointer; }
+.brush-control input { appearance: none; width: 100%; height: 32px; margin: 0; background: transparent; cursor: pointer; transform: translateY(1px); }
 .brush-control input::-webkit-slider-runnable-track { height: 2px; border-radius: 99px; background: linear-gradient(90deg, var(--aqua) 0 var(--slider-progress), #ffffff33 var(--slider-progress) 100%); }
 .brush-control input::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; margin-top: -5.5px; border: 2px solid #080a0c; border-radius: 50%; background: var(--aqua); box-shadow: none; transition: transform 180ms; }
 .brush-control input:hover::-webkit-slider-thumb { transform: scale(1.08); }

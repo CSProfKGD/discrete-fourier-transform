@@ -118,16 +118,15 @@ export function presetMask(preset: Preset, width: number, height: number) {
   return Float64Array.from({ length: width * height }, (_, index) => {
     const r2 = (signedBin(index % width, width) / radiusScale) ** 2 +
       (signedBin(Math.floor(index / width), height) / radiusScale) ** 2;
-    const low = (sigma: number) => Math.exp(-r2 / (2 * sigma * sigma));
-    if (preset === 'band') {
-      const radius = Math.sqrt(r2);
-      const ramp = (from: number, to: number) => {
-        const t = Math.max(0, Math.min(1, (radius - from) / (to - from)));
-        return .5 - .5 * Math.cos(Math.PI * t);
-      };
-      return ramp(.035, .055) * (1 - ramp(.14, .18));
-    }
-    return preset === 'low' ? low(.055) : 1 - low(.085);
+    if (preset === 'low') return Math.exp(-r2 / (2 * .055 * .055));
+    const radius = Math.sqrt(r2);
+    const ramp = (from: number, to: number) => {
+      const t = Math.max(0, Math.min(1, (radius - from) / (to - from)));
+      return .5 - .5 * Math.cos(Math.PI * t);
+    };
+    if (preset === 'band') return ramp(.035, .055) * (1 - ramp(.14, .18));
+    // An exact low-frequency stop band stays visibly dark under log magnitude.
+    return ramp(.065, .14);
   });
 }
 

@@ -118,6 +118,22 @@ test('band-pass has a visible, smoothly tapered annulus with exact stop bands', 
   symmetric(mask, w, h);
 });
 
+test('high-pass has an exact dark central stop band and a monotone smooth pass transition', () => {
+  const w = 512, h = 384, mask = presetMask('high', w, h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const r = Math.hypot(Math.min(x, w - x), Math.min(y, h - y)) / h;
+    const gain = mask[y * w + x];
+    if (r <= .065) assert.equal(gain, 0);
+    else if (r >= .14) assert.equal(gain, 1);
+    else assert.ok(gain > 0 && gain < 1);
+  }
+  for (let x = 1; x < w / 2; x++) {
+    assert.ok(mask[x] >= mask[x - 1]);
+    assert.ok(mask[x] - mask[x - 1] < .06);
+  }
+  symmetric(mask, w, h);
+});
+
 test('every radial preset is circular on a rectangular frequency-bin display', () => {
   const w = 512, h = 384;
   for (const preset of ['low', 'band', 'high'] as const) {

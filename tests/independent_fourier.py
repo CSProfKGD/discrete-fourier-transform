@@ -26,7 +26,7 @@ masks = {
     'original': np.ones((h, w)),
     'Low-pass': low(.055),
     'Band-pass': ramp(.035, .055)*(1-ramp(.14, .18)),
-    'High-pass': 1-low(.085),
+    'High-pass': ramp(.065, .14),
 }
 scale = np.log1p(np.abs(coefficients).max())
 report = {}

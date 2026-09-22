@@ -33,7 +33,9 @@ Presets replace the current mask, referencing original coefficients. The user re
 | --- | --- |
 | Low-pass | `L₀.₀₅₅` |
 | Band-pass | Raised-cosine annulus: stop ≤.035 and ≥.18; pass .055–.14; smooth tapers between |
-| High-pass | `1−L₀.₀₈₅` |
+| High-pass | Stop ≤.065; raised-cosine transition .065–.14; full transmission ≥.14 |
+
+The user subsequently requested a more prominent High-pass magnitude view. Its former Gaussian complement (`1−L₀.₀₈₅`) left low-frequency tails visible under logarithmic scaling. High-pass now removes the circular center through radius .065, rises smoothly with the same raised-cosine convention to full transmission at .14, and preserves all higher frequencies. This changes the real filter mask and corresponding reconstruction; spectrum scaling and phase remain unchanged.
 
 The user requested making Band-pass more apparent in the magnitude domain. The original Gaussian-difference band left long, visible spectral tails under logarithmic scaling, so it was replaced with the compact annulus above. Each taper uses `.5-.5*cos(πt)` with `t` clamped to [0,1]. The black center and exterior represent actual zeroed coefficients; display normalization is unchanged. A subsequent request made all presets circular on the rectangular spectrum: both bin axes use the same normalization. This is circular filtering in bin space, not isotropic filtering in cycles per image pixel; horizontal and vertical bin spacings in those physical units differ. The transform and conjugate symmetry are unaffected.
 
@@ -60,6 +62,8 @@ The latest refinement supersedes the temporary label and square spectrum corners
 This pass was checked in Chrome at 1440×1000 and 390×844. Before/after measurements confirmed unchanged header, visual-pair, control-cluster and slider-track geometry; Undo/Reset differ only by 1/64px layout rounding. Pills measure 41px rather than 44px, and the numeric output moved exactly 8px. No mobile overflow occurred. Desktop and mobile screenshots were inspected, and all 13 existing math tests plus the type-checked production build passed.
 
 ## Status
+
+High-pass visibility and slider alignment were refined together. The slider label and numeric output now share a .9375rem font size and 1.4 line height; the unit retains its smaller size and aligns to the same baseline. A 1px optical adjustment centers the track against the text. Chrome measurements confirmed identical label/number/unit baselines, and screenshots were visually inspected. All 19 mathematical tests and the type-checked production build pass. The browser acceptance suite and independent NumPy audit pass with zero captured pixel differences for all preset views and the preview; transitions and brushing remain approximately 30fps. The new test verifies the High-pass stop band, smooth monotone transition, and exact high-frequency pass band.
 
 The aliasing fix uses the user-selected fixed magnified patch rather than fading full-field high frequencies to gray. Verified on 2026-09-22: all 18 mathematical tests and the type-checked production build pass. The browser acceptance suite passes, including desktop/mobile previews at device pixel ratios 1 and 2, visible horizontal/vertical/diagonal high-frequency stripes, resize handling, unchanged 4:3 geometry, and equal 6px frame insets. A Fourier analysis of the rendered high-frequency patch places over 99.99% of its energy in the intended conjugate pair. The independent NumPy audit matches every captured preview, spatial, and spectrum pixel exactly. The high-frequency screenshot was visually inspected; no console errors occurred. Existing filtering, brush, keyboard/touch, reduced-motion, history, and enlarged-text checks also pass. Runtime image processing and worker computations are unchanged.
 
