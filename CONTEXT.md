@@ -67,7 +67,7 @@ The latest follow-up restores the subtle bottom-right `Magnitude Spectrum` label
 
 Implemented and running locally at `http://127.0.0.1:5174/`. `AGENTS.md` and this uppercase `CONTEXT.md` are maintained alongside the app.
 
-Publication configuration: public repository `CSProfKGD/discrete-fourier-transform`, with website `https://csprofkgd.github.io/discrete-fourier-transform/`. The user authorized the initial commit and push. `.github/workflows/pages.yml` installs locked dependencies, runs all mathematical tests, builds with the repository's asset base path, and deploys `dist/` to GitHub Pages on pushes to `main`. Local development remains unchanged. Initial publication is being verified.
+Published to the public repository `CSProfKGD/discrete-fourier-transform`, with website `https://csprofkgd.github.io/discrete-fourier-transform/`. The user authorized creating the repository and webpage, committing and pushing. `.github/workflows/pages.yml` installs locked dependencies, runs all mathematical tests, builds with the repository's asset base path, and deploys `dist/` to GitHub Pages on pushes to `main`. Local development remains unchanged. Initial commit `d4c32ab` deployed successfully in GitHub Actions run `35757147875`. The live HTTPS page returned 200; Chrome confirmed that the image and Fourier worker load, Band-pass changes the reconstruction, Reset restores the original, and no browser errors occur.
 
 Verification completed on 2026-09-22:
 
