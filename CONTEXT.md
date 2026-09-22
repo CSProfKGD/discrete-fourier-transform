@@ -61,6 +61,8 @@ This pass was checked in Chrome at 1440×1000 and 390×844. Before/after measure
 
 ## Status
 
+The sinusoid thumbnail's frame was corrected after the user reported an uneven/missing bottom border. The outer tile now sizes to its contents, and the inner canvas uses its intrinsic 4:3 aspect ratio with `height: auto`. This avoids percentage-height/intrinsic-size overflow and keeps equal 5px padding plus a 1px border on all four sides. Rounded clipping remains on the outer frame; preview pixels, phase, and animation behavior are unchanged.
+
 Cursor responsiveness was refined after the user noticed halo lag. Halo geometry now updates immediately from the newest pointer event using cached SVG elements, independently of the sinusoid preview's animation frame. Coalesced samples are retained for stroke geometry only; they no longer drive the visible cursor through older positions. Hover-only worker replies recycle their buffers without re-uploading unchanged spatial and spectrum canvases. No Fourier math, brush strength, or tile-easing semantics changed.
 
 The latest follow-up restores the subtle bottom-right `Magnitude Spectrum` label with no underline or pointer interception. The preview now eases its horizontal offset when switching from the pointer's right to its left near the spectrum's right boundary. Exponential easing uses a 70ms time constant (about 95% settled after 210ms), with 24px hysteresis to avoid repeated switching at the boundary. Ordinary pointer tracking remains immediate; initial appearance is positioned correctly before fading in, and reduced motion switches sides immediately.
