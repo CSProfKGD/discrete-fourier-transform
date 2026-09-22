@@ -244,7 +244,7 @@ function App() {
   return (
     <main className={`site-shell${ready ? ' is-ready' : ''}`}>
       <header className="hero">
-        <h1>Discrete Fourier transform</h1>
+        <h1>2D Discrete Fourier Transform</h1>
         <div className="subtitle">One image. Two representations.</div>
       </header>
       <section className="experiment" aria-label="Interactive Fourier transform">

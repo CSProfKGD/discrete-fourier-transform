@@ -62,7 +62,7 @@ try {
   await page.screenshot({ path: '.qa/desktop.png' });
   assert.equal(await button('Undo').isDisabled(), true);
   assert.equal(await button('Reset').isDisabled(), true);
-  assert.equal(await page.locator('h1').innerText(), 'Discrete Fourier transform');
+  assert.equal(await page.locator('h1').innerText(), '2D Discrete Fourier Transform');
   assert.equal(await page.locator('.subtitle').innerText(), 'One image. Two representations.');
   assert.equal(await page.locator('button').count(), 5);
 

@@ -6,7 +6,7 @@ A direct-manipulation teaching page showing a photograph and its discrete Fourie
 
 Exact hero copy:
 
-- `Discrete Fourier transform`
+- `2D Discrete Fourier Transform`
 - `One image. Two representations.`
 
 The user selected grayscale input, presets that start from the original photograph, a display that reveals both signs of filtered signals, and a local project with browser preview. The page has no visible explanatory paragraphs, panel labels, axes, or extra modes. After reviewing the live page, the user requested a harder brush, a brush-diameter slider beneath the buttons, analytical verification, consistent erasure, and eased Undo/Reset transitions. Those refinements supersede the original no-sliders and immediate-undo assumptions.
@@ -62,6 +62,8 @@ The latest refinement supersedes the temporary label and square spectrum corners
 This pass was checked in Chrome at 1440×1000 and 390×844. Before/after measurements confirmed unchanged header, visual-pair, control-cluster and slider-track geometry; Undo/Reset differ only by 1/64px layout rounding. Pills measure 41px rather than 44px, and the numeric output moved exactly 8px. No mobile overflow occurred. Desktop and mobile screenshots were inspected, and all 13 existing math tests plus the type-checked production build passed.
 
 ## Status
+
+The hero title was updated to the user's exact text, `2D Discrete Fourier Transform`. Existing typography, subtitle, layout styles, and functionality are unchanged. The browser acceptance assertion and project guidance reflect the new title. All 19 mathematical tests and the type-checked production build pass after this text-only update.
 
 High-pass visibility and slider alignment were refined together. The slider label and numeric output now share a .9375rem font size and 1.4 line height; the unit retains its smaller size and aligns to the same baseline. A 1px optical adjustment centers the track against the text. Chrome measurements confirmed identical label/number/unit baselines, and screenshots were visually inspected. All 19 mathematical tests and the type-checked production build pass. The browser acceptance suite and independent NumPy audit pass with zero captured pixel differences for all preset views and the preview; transitions and brushing remain approximately 30fps. The new test verifies the High-pass stop band, smooth monotone transition, and exact high-frequency pass band.
 
